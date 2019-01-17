@@ -1,0 +1,1 @@
+/usr/bin/cc     CMakeFiles/t3l.dir/t3l/error.c.o CMakeFiles/t3l.dir/t3l/lexer.c.o CMakeFiles/t3l.dir/t3l/main.c.o  -o t3l 

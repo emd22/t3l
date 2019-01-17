@@ -1,0 +1,16 @@
+$macro RealMode 1
+$flag RealMode
+
+halt(None):
+    $asm
+    cli
+    hlt
+    $end
+
+$macro EntryPoint Position
+
+start:
+    $asm
+    mov al, 'A'
+    $end
+    halt()

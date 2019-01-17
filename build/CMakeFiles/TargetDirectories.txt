@@ -1,0 +1,3 @@
+/home/ethan/Projects/tootles/build/CMakeFiles/rebuild_cache.dir
+/home/ethan/Projects/tootles/build/CMakeFiles/edit_cache.dir
+/home/ethan/Projects/tootles/build/CMakeFiles/t3l.dir
