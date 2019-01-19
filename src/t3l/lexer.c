@@ -5,7 +5,12 @@
 
 #include <t3l/lexer.h>
 
-#define MAX_TOKEN_SIZE 128
+#define MAX_TOKEN_SIZE 256
+
+// #define TOKEN_PEEK(index)  lexp[index+1]
+// #define TOKEN_PEEKP(index) lexp[index-1]
+// #define TOKEN_NEXT(index)  lexp[index++]
+// #define TOKEN_PREV(index)  lexp[index--]
 
 char **lexp;
 unsigned amt_tokens = 0;
@@ -52,10 +57,6 @@ unsigned set_amt_tokens(char *data, long fsize) {
     return i;
 }
 
-void token_peek() {
-    
-}
-
 lexer_data_t lex(char *data, long fsize) {
     unsigned i;
     set_amt_tokens(data, fsize);
@@ -71,12 +72,19 @@ lexer_data_t lex(char *data, long fsize) {
     int j;
     const int op_len = strlen(operators);
 
+    bool in_brackets = false;
     bool skipped = false;
     bool cont = false;
     for (i = 0; i < fsize; i++) {
         ch = data[i];
+
+        if (ch == '{')
+            in_brackets = true;
+        else if (ch == '}')
+            in_brackets = false;
+
         if (ch == ' ' || ch == '\t' || ch == '\n') {
-            if (skipped)
+            if (skipped || in_brackets)
                 continue;
             skipped = true;
             strcpy(lexp[lex_index++], this_tok);
@@ -87,7 +95,6 @@ lexer_data_t lex(char *data, long fsize) {
         for (j = 0; j < op_len; j++) {
             if (data[i] == operators[j]) {
                 if (this_tok_i > 0 && !skipped) {
-                    printf("yes %c\n", data[i]);
                     memcpy(lexp[lex_index++], this_tok, i);
                 }
                 lexp[lex_index][0] = data[i];
