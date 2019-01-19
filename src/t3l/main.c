@@ -1,5 +1,6 @@
 #include <t3l/lexer.h>
 #include <t3l/error.h>
+#include <t3l/preproc.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,6 +29,7 @@ int main() {
 
     lexer_data_t ldata;
     ldata = lex(fdata, fsize);
+    preproc(ldata.lexp, ldata.amt_tokens, ldata.token_length);
     int i;
     for (i = 0; i < ldata.amt_tokens; i++) {
         printf("token: [%s]\n", ldata.lexp[i]);

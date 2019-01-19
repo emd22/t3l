@@ -5,12 +5,10 @@ halt(None):
     $asm
     cli
     hlt
-    $end
-
-$macro EntryPoint Position
+    $asm
 
 start:
     $asm
     mov al, 'A'
-    $end
+    $asm
     halt()

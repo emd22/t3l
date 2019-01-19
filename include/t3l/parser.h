@@ -3,8 +3,7 @@
 
 enum {
     PTYPE_IDENTIFIER,
-    PTYPE_
-}
+};
 
 typedef struct {
 

@@ -2,12 +2,15 @@
 #include <t3l/error.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define NEWLINE   0x0A
 #define HORIZ_TAB 0x09
 #define BACKSPACE 0x08
 #define BELL      0x07
+
+int compiler_flags = 0;
 
 // typedef struct {
 //     char macro[64];
@@ -43,7 +46,7 @@ void check_multichar(char *tok, char *value) {
 int is_escape(char *tok, unsigned tok_size) {
     int end = strlen(tok);
     char value = 0;
-    if (tok[end] != '\'') {
+    if (tok[end-1] != '\'') {
         t3l_error("Character object not ended [%s]\n", tok);
         return 1;
     }
@@ -73,8 +76,23 @@ void preproc(char **tokens, unsigned tok_amt, unsigned tok_size) {
         }
         else if (this_tok[0] == '$') {
             if (!strcmp(tokens[i+1], "macro")) {
-
+                unsigned i2;
+                for (i2 = 0; i2 < tok_amt; i2++) {
+                    if (!strcmp(tokens[i2], tokens[i+2]) && strcmp(tokens[i2-1], "macro")) {
+                        printf("tokens[%d+2] (%d) = [%s]\n", i, i2, tokens[i+2]);
+                        memset(tokens[i2], 0, tok_size);
+                        memcpy(tokens[i2], tokens[i+3], tok_size);
+                    }
+                }
+            }
+            else if (!strcmp(tokens[i+1], "flag")) {
+                printf("Compiler flag %s activated.\n", tokens[i+2]);
+                compiler_flags |= atoi(tokens[i+2]);
             }
         }
     }
+}
+
+int get_compiler_flags(void) {
+    return compiler_flags;
 }
