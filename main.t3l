@@ -1,14 +1,11 @@
-$macro RealMode 1
-$flag RealMode
+$macro REALMODE 1
+$flag REALMODE
 
 halt(None):
-    $asm
-    cli
-    hlt
-    $asm
+    _cli
+    _hlt
 
-start:
-    $asm
-    mov al, 'A'
-    $asm
+_start:
+    // tokens that start with an underscore and a capital letter are assumed registers.
+    _mov _Al, 'A'
     halt()

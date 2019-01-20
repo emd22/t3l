@@ -27,6 +27,9 @@ unsigned set_amt_tokens(char *data, long fsize) {
     const int op_len = strlen(operators);
 
     for (i = 0; i < fsize; i++) {
+        if (data[i] == '/' && data[i+1] == '/')
+            while (data[i++] != '\n');
+            
         if (data[i] == ' ' || data[i] == '\t' || data[i] == '\n') {
             if (skipped)
                 continue;
@@ -76,6 +79,9 @@ lexer_data_t lex(char *data, long fsize) {
     bool skipped = false;
     bool cont = false;
     for (i = 0; i < fsize; i++) {
+        if (data[i] == '/' && data[i+1] == '/')
+            while (data[i++] != '\n');
+        
         ch = data[i];
 
         if (ch == '{')
