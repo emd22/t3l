@@ -1,6 +1,8 @@
 #include <t3l/lexer.h>
 #include <t3l/error.h>
+#include <t3l/parser.h>
 #include <t3l/preproc.h>
+#include <t3l/compiler.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,7 +17,8 @@ long fsize_get(FILE *fp) {
 int main() {
     const char *fn = "../main.t3l";
     FILE *fp = fopen(fn, "rb");
-    if (!fp) {
+    FILE *out_fp = fopen("../b.out", "wb");
+    if (!fp || !out_fp) {
         // throw error and exit with failure return code
         t3l_error("Cannot open file %s\n", fn);
         goto end;
@@ -30,10 +33,17 @@ int main() {
     lexer_data_t ldata;
     ldata = lex(fdata, fsize);
     preproc(ldata.lexp, ldata.amt_tokens, ldata.token_length);
+
+    int amt_pobjs;
+    parser_obj_t *this_pobj;
+    parser_obj_t *pobjs = parse(ldata.lexp, ldata.amt_tokens, ldata.token_length, &amt_pobjs);
     int i;
-    for (i = 0; i < ldata.amt_tokens; i++) {
-        printf("token: [%s]\n", ldata.lexp[i]);
+    for (i = 0; i < amt_pobjs; i++) {
+        this_pobj = &(pobjs[i]);
+        printf("pobj: %d, %d\n", this_pobj->type, this_pobj->value);
     }
+
+    compiler_init(out_fp);
 
 end:;
     int error_count = t3l_get_error_count();

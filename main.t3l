@@ -5,7 +5,7 @@ halt(None):
     _cli
     _hlt
 
-_start:
+_start():
     // tokens that start with an underscore and a capital letter are assumed registers.
     _mov _Al, 'A'
     halt()

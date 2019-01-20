@@ -2,19 +2,12 @@
 #define PARSER_H
 
 enum {
-    VR_NULL,
-    VR_AL,
-    VR_AH,
-    VR_AX,
-    VR_CL,
-    VR_CH,
-    VR_CX,
-    VR_DL,
-    VR_DH,
-    VR_DX,
-    VR_BL,
-    VR_BH,
-    VR_BX
+    VI_NULL,
+    VI_MOV,
+    VI_JMP,
+    VI_CLI,
+    VI_STI,
+    VI_HLT,
 };
 
 enum {
@@ -23,12 +16,16 @@ enum {
     V_POINTER, // (DWORD)
     V_INSTRUCTION,
     V_REGISTER,
-    V_SEPERATOR,
+    V_LABEL,
+    V_CALL,
+    V_ENTRYPOINT,
 };
 
 typedef struct {
     int value;
     int type;
 } parser_obj_t;
+
+parser_obj_t *parse(char **tokens, unsigned tokens_amt, unsigned token_size, int *pobj_amt);
 
 #endif
