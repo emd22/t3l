@@ -24,6 +24,7 @@ enum {
 typedef struct {
     int value;
     int type;
+    int tloc;
 } parser_obj_t;
 
 parser_obj_t *parse(char **tokens, unsigned tokens_amt, unsigned token_size, int *pobj_amt);

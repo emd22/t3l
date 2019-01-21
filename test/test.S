@@ -2,7 +2,6 @@
 .code16
 .globl _start
 
+test1:
 _start:
-    mov $16, %al
-    cli
-    hlt
+    jmp test1

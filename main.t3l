@@ -1,11 +1,12 @@
 $macro REALMODE 1
 $flag REALMODE
 
+halt():
+    _cli
+    _hlt
+
 _start():
     // tokens that start with an underscore and a capital letter are assumed registers.
     _mov _Al, 10h
     halt()
-
-halt():
-    _cli
-    _hlt
+    
