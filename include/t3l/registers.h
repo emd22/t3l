@@ -3,17 +3,23 @@
 
 enum {
     R_NULL,
+
+    // low 8 bits
     R_AL,
-    R_AH,
-    R_AX,
     R_CL,
-    R_CH,
-    R_CX,
     R_DL,
-    R_DH,
-    R_DX,
     R_BL,
+
+    // high 8 bits
+    R_AH,
+    R_CH,
+    R_DH,
     R_BH,
+    
+    // all 16 bits
+    R_AX,
+    R_CX,
+    R_DX,
     R_BX
 };
 

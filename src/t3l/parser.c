@@ -27,19 +27,18 @@ int get_reg_n(char *str) {
         "_Null",
         // AX, Lo, Hi
         "_Al",
-        "_Ah",
-        "_Ax",
-        // CX, Lo, Hi
         "_Cl",
-        "_Ch",
-        "_Cx",
-        // DX, Lo, Hi
         "_Dl",
-        "_Dh",
-        "_Dx",
-        // BX, Lo, Hi
         "_Bl",
+
+        "_Ah",
+        "_Ch",
+        "_Dh",
         "_Bh",
+        
+        "_Ax",
+        "_Cx",
+        "_Dx",
         "_Bx",
     };
 
@@ -71,11 +70,20 @@ parser_obj_t *parse(char **tokens, unsigned tokens_amt, unsigned token_size, int
             if (i > 2 && (tokens[i-2][0] == '$' || tokens[i-3][0] == '$')) {
                 continue;
             }
-            int val = atoi(this_tok);
+
+            int val;
+            if (this_tok[strlen(this_tok)-1] == 'h') {
+                val = strtol(this_tok, NULL, 16);
+            }
+            else {
+                val = atoi(this_tok);
+            }
+
             if (val > WORD_MAX) {
                 t3l_error("Value greater than data type, %d > %d\n", val, WORD_MAX);
                 push_obj(V_NULL, 0);
             }
+
             push_obj(V_NUMBER, val);
         }
         else if (this_tok[0] == '_' && (this_tok[1] >= 'A' && this_tok[1] <= 'Z')) {

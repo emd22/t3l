@@ -29,8 +29,8 @@ unsigned set_amt_tokens(char *data, long fsize) {
     for (i = 0; i < fsize; i++) {
         if (data[i] == '/' && data[i+1] == '/')
             while (data[i++] != '\n');
-            
-        if (data[i] == ' ' || data[i] == '\t' || data[i] == '\n') {
+
+        if (data[i] == ' ' || data[i] == '\t' || data[i] == '\n' || i == fsize-1) {
             if (skipped)
                 continue;
             tok_len = 0;
@@ -89,9 +89,14 @@ lexer_data_t lex(char *data, long fsize) {
         else if (ch == '}')
             in_brackets = false;
 
-        if (ch == ' ' || ch == '\t' || ch == '\n') {
+        if (ch == ' ' || ch == '\t' || ch == '\n' || i == fsize-1) {
             if (skipped || in_brackets)
                 continue;
+
+            // if on last character in buffer, add it to finish the last token.
+            if (i == fsize-1)
+                this_tok[this_tok_i++] = data[i];
+
             skipped = true;
             strcpy(lexp[lex_index++], this_tok);
             memset(this_tok, 0, MAX_TOKEN_SIZE);

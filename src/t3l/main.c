@@ -44,6 +44,7 @@ int main() {
     }
 
     compiler_init(out_fp);
+    compile(pobjs, amt_pobjs);
 
 end:;
     int error_count = t3l_get_error_count();
@@ -56,6 +57,8 @@ end:;
         printf("Compilation failed with %d error(s).\n", error_count);
         return 1;
     }
+
+    fclose(out_fp);
 
     free(fdata);
 }
