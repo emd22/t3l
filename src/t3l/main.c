@@ -37,6 +37,9 @@ int main() {
     int amt_pobjs;
     parser_obj_t *this_pobj;
     parser_obj_t *pobjs = parse(ldata.lexp, ldata.amt_tokens, ldata.token_length, &amt_pobjs);
+
+    free(ldata.lexp);
+    
     int i;
     for (i = 0; i < amt_pobjs; i++) {
         this_pobj = &(pobjs[i]);

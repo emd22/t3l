@@ -75,22 +75,17 @@ lexer_data_t lex(char *data, long fsize) {
     int j;
     const int op_len = strlen(operators);
 
-    bool in_brackets = false;
     bool skipped = false;
     bool cont = false;
+    
     for (i = 0; i < fsize; i++) {
         if (data[i] == '/' && data[i+1] == '/')
             while (data[i++] != '\n');
         
         ch = data[i];
 
-        if (ch == '{')
-            in_brackets = true;
-        else if (ch == '}')
-            in_brackets = false;
-
         if (ch == ' ' || ch == '\t' || ch == '\n' || i == fsize-1) {
-            if (skipped || in_brackets)
+            if (skipped)
                 continue;
 
             // if on last character in buffer, add it to finish the last token.

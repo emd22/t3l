@@ -1,7 +1,7 @@
 #include <t3l/compiler.h>
 #include <t3l/error.h>
 
-#define SHORT_JMP_ADDR(forward, rel_pos) (forward ? rel_pos : 0xFF-rel_pos)
+#define SHORT_JMP_ADDR(rel_pos) ((rel_pos > 0) ? rel_pos-1 : 0xFF+(rel_pos))
 
 typedef struct {
     int idx;
@@ -21,6 +21,8 @@ void compiler_out(uint8_t val) {
 int find_label(int idx) {
     int i;
     for (i = 0; i < labels_idx; i++) {
+        printf("LABEL!, [%d, %d]\n", labels[i].idx, idx);
+
         if (labels[i].idx == idx)
             return i;
     }
@@ -48,8 +50,41 @@ void compile(parser_obj_t *objs, unsigned obj_len) {
     int reg;
 
     // WARNING: spaghet
-    int i;
-    label_t *this_label;
+    int i, j;
+    int bidx = 0;
+
+    for (i = 0; i < obj_len; i++) {
+        this_obj = &objs[i];
+        switch (this_obj->type) {
+            case V_INSTRUCTION:
+                switch (this_obj->value) {
+                    case VI_MOV:
+                    case VI_INT:
+                        bidx += 2;
+                        break;
+
+                    case VI_FILL:
+                        bidx += (objs[i+1].value);
+                        break;
+
+                    case VI_CLI:
+                    case VI_STI:
+                    case VI_HLT:
+                        bidx++;
+                        break;
+                }
+                break;
+
+            case V_CALL:
+                bidx += 2;
+                break;
+        }
+        if (objs[i].type == V_LABEL || objs[i].type == V_ENTRYPOINT) {
+            label_t *this_label = &labels[labels_idx++];
+            this_label->bin_idx = bidx;
+            this_label->idx = objs[i].value;
+        }
+    }
 
     for (i = 0; i < obj_len; i++) {
         this_obj = &objs[i];
@@ -73,14 +108,22 @@ void compile(parser_obj_t *objs, unsigned obj_len) {
                     case VI_HLT:
                         compiler_out(0xF4);
                         break;
-                }
-                break;
+                    
+                    case VI_INT:
+                        compiler_out(0xCD);
+                        compiler_out(objs[i+1].value);
+                        break;
 
-            case V_ENTRYPOINT:
-            case V_LABEL:
-                this_label = &labels[labels_idx++];
-                this_label->bin_idx = ftell(fp);
-                this_label->idx = this_obj->value;
+                    case VI_FILL:
+                        val = ftell(fp);
+                        for (j = 0; j < objs[i+1].value-val; j++) {
+                            compiler_out(0);
+                        }
+                        break;
+                    case VI_BYTE:
+                        compiler_out(objs[i+1].value);
+                        break;
+                }
                 break;
 
             case V_CALL:
@@ -88,7 +131,8 @@ void compile(parser_obj_t *objs, unsigned obj_len) {
                 val = find_label(this_obj->value);
                 if (val == -1)
                     break;
-                compiler_out(SHORT_JMP_ADDR((this_obj->tloc > labels[val].idx) ? 0 : 1, labels[val].bin_idx));
+
+                compiler_out(SHORT_JMP_ADDR(labels[val].bin_idx-ftell(fp)));
                 break;
         }
     }

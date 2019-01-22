@@ -8,6 +8,9 @@ enum {
     VI_CLI,
     VI_STI,
     VI_HLT,
+    VI_INT,
+    VI_FILL,
+    VI_BYTE,
 };
 
 enum {
