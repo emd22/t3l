@@ -3,13 +3,7 @@ $flag REALMODE
 
 _start()
 
-write_char():
-    _mov _Ah, 0Eh
-    _int 10h
-halt():
-    _cli
-    _hlt
-
+$include @foot@
 
 _start():
     _mov _Al, 'A'

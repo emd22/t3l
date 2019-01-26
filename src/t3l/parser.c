@@ -14,14 +14,19 @@
 #define BYTE_MAX (256)
 
 typedef struct {
-    const char *label;
+    char *label;
     int val;
 } instruction_t;
 
 parser_obj_t *objs;
+unsigned obj_size = OBJS_START;
 unsigned obj_idx = 0;
 
 void push_obj(int type, int value, int tok_loc) {
+    if (obj_idx == obj_size) {
+        objs = realloc(objs, obj_size *= 2);
+    }
+
     parser_obj_t *this_obj = &objs[obj_idx++];
     this_obj->type = type;
     this_obj->value = value;
@@ -63,12 +68,12 @@ int get_reg_n(char *str) {
     return R_NULL;
 }
 
-int parse_label(char **tokens, unsigned tokens_amt, unsigned i) {
+int parse_label(char **tokens, unsigned tokens_index, unsigned i) {
     int last_i = i;
     while (tokens[last_i--][0] != '(');
     char *label = tokens[last_i];
     
-    if (i < tokens_amt-1 && tokens[i+1][0] == ':') {
+    if (i < tokens_index-1 && tokens[i+1][0] == ':') {
         // declare label
         if (!strcmp(label, "_start")) {
             push_obj(V_ENTRYPOINT, last_i, i);
@@ -80,7 +85,7 @@ int parse_label(char **tokens, unsigned tokens_amt, unsigned i) {
 
     // call label (jmp)
     int j;
-    for (j = 0; j < tokens_amt; j++) {
+    for (j = 0; j < tokens_index; j++) {
         if (!strcmp(label, tokens[j]) && tokens[j+3][0] == ':')
             break;
     }
@@ -112,13 +117,13 @@ int parse_number(char **tokens, char *this_tok, unsigned i) {
     return 0;
 }
 
-parser_obj_t *parse(char **tokens, unsigned tokens_amt, unsigned token_size, int *pobj_amt) {
+parser_obj_t *parse(char **tokens, unsigned tokens_index, unsigned token_size, int *pobj_amt) {
     objs = malloc(OBJS_START*sizeof(parser_obj_t));
     memset(objs, 0, OBJS_START*sizeof(parser_obj_t));
 
     char *this_tok;
 
-    const instruction_t instructions[] = {
+    instruction_t instructions[] = {
         {"_mov", VI_MOV},
         {"_cli", VI_CLI},
         {"_hlt", VI_HLT},
@@ -131,7 +136,7 @@ parser_obj_t *parse(char **tokens, unsigned tokens_amt, unsigned token_size, int
 
     instruction_t *this_instruction;
 
-    for (i = 0; i < tokens_amt; i++) {
+    for (i = 0; i < tokens_index; i++) {
         this_tok = tokens[i];
         // printf("tk: %s\n", this_tok);
         if (this_tok[0] == '#')
@@ -149,7 +154,7 @@ parser_obj_t *parse(char **tokens, unsigned tokens_amt, unsigned token_size, int
         }
 
         else if (this_tok[0] == ')') {
-            if (parse_label(tokens, tokens_amt, i)) {
+            if (parse_label(tokens, tokens_index, i)) {
                 continue;
             }
         }
@@ -161,6 +166,7 @@ parser_obj_t *parse(char **tokens, unsigned tokens_amt, unsigned token_size, int
             }
         }
     }
+
     (*pobj_amt) = obj_idx;
     return objs;
 }

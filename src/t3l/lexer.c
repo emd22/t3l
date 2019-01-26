@@ -7,18 +7,13 @@
 
 #define MAX_TOKEN_SIZE 256
 
-// #define TOKEN_PEEK(index)  lexp[index+1]
-// #define TOKEN_PEEKP(index) lexp[index-1]
-// #define TOKEN_NEXT(index)  lexp[index++]
-// #define TOKEN_PREV(index)  lexp[index--]
-
 char **lexp;
-unsigned amt_tokens = 0;
+unsigned tokens_index = 0;
 unsigned lex_index = 0;
 
 const char operators[] = "+-=*/:$(),";
 
-unsigned set_amt_tokens(char *data, long fsize) {
+unsigned set_tokens_index(char *data, long fsize) {
     bool skipped = false;
     bool cont = false;
     unsigned i;
@@ -35,15 +30,15 @@ unsigned set_amt_tokens(char *data, long fsize) {
                 continue;
             tok_len = 0;
             skipped = true;
-            amt_tokens++;
+            tokens_index++;
             continue;
         }
 
         for (j = 0; j < op_len; j++) {
             if (data[i] == operators[j]) {
                 if (tok_len > 0 && !skipped)
-                    amt_tokens++;
-                amt_tokens++;
+                    tokens_index++;
+                tokens_index++;
                 tok_len = 0;
                 cont = true;
                 skipped = true;
@@ -60,12 +55,29 @@ unsigned set_amt_tokens(char *data, long fsize) {
     return i;
 }
 
+lexer_data_t get_lexer_data(void) {
+    lexer_data_t lex_data;
+    lex_data.lexp = lexp;
+    lex_data.tokens_index = tokens_index;
+    lex_data.token_length = MAX_TOKEN_SIZE;
+
+    return lex_data;
+}
+
+void set_lexer_data(lexer_data_t *lexd) {
+    lexp = lexd->lexp;
+    tokens_index = lexd->tokens_index;
+}
+
 lexer_data_t lex(char *data, long fsize) {
+    tokens_index = 0;
+    lex_index = 0;
+
     unsigned i;
-    set_amt_tokens(data, fsize);
-    printf("Token buffer size = %u bytes, %u tokens\n", MAX_TOKEN_SIZE*amt_tokens, amt_tokens);
-    lexp = malloc(sizeof(char *)*(amt_tokens));
-    for (i = 0; i < amt_tokens; i++) {
+    set_tokens_index(data, fsize);
+    printf("Token buffer size = %u bytes, %u tokens\n", MAX_TOKEN_SIZE*tokens_index, tokens_index);
+    lexp = malloc(sizeof(char *)*(tokens_index));
+    for (i = 0; i < tokens_index; i++) {
         lexp[i] = malloc(MAX_TOKEN_SIZE);
     }
 
@@ -75,18 +87,29 @@ lexer_data_t lex(char *data, long fsize) {
     int j;
     const int op_len = strlen(operators);
 
+    bool in_brackets = false;
     bool skipped = false;
     bool cont = false;
-    
+
     for (i = 0; i < fsize; i++) {
         if (data[i] == '/' && data[i+1] == '/')
             while (data[i++] != '\n');
         
         ch = data[i];
 
+        if (ch == '@') {
+            in_brackets = !in_brackets;
+            continue;
+        }
+
         if (ch == ' ' || ch == '\t' || ch == '\n' || i == fsize-1) {
-            if (skipped)
+            if (in_brackets) {
+                this_tok[this_tok_i++] = ch;
                 continue;
+            }
+            else if (skipped) {
+                continue;
+            }
 
             // if on last character in buffer, add it to finish the last token.
             if (i == fsize-1)
@@ -98,6 +121,7 @@ lexer_data_t lex(char *data, long fsize) {
             this_tok_i = 0;
             continue;
         }
+
         for (j = 0; j < op_len; j++) {
             if (data[i] == operators[j]) {
                 if (this_tok_i > 0 && !skipped) {
@@ -123,7 +147,7 @@ lexer_data_t lex(char *data, long fsize) {
 
     lexer_data_t lex_data;
     lex_data.lexp = lexp;
-    lex_data.amt_tokens = amt_tokens;
+    lex_data.tokens_index = tokens_index;
     lex_data.token_length = MAX_TOKEN_SIZE;
 
     return lex_data;
@@ -131,7 +155,7 @@ lexer_data_t lex(char *data, long fsize) {
 
 void lex_destroy() {
     unsigned i;
-    for (i = 0; i < amt_tokens; i++) {
+    for (i = 0; i < tokens_index; i++) {
         free(lexp[i]);
     }
     free(lexp);

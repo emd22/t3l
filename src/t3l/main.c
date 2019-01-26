@@ -32,15 +32,19 @@ int main() {
 
     lexer_data_t ldata;
     ldata = lex(fdata, fsize);
-    preproc(ldata.lexp, ldata.amt_tokens, ldata.token_length);
+    preproc(ldata.lexp, &(ldata.tokens_index), ldata.token_length);
+    
+    int i;
+    for (i = 0; i < ldata.tokens_index; i++) {
+        printf("tk: %s\n", ldata.lexp[i]);
+    }
 
     int amt_pobjs;
     parser_obj_t *this_pobj;
-    parser_obj_t *pobjs = parse(ldata.lexp, ldata.amt_tokens, ldata.token_length, &amt_pobjs);
+    parser_obj_t *pobjs = parse(ldata.lexp, ldata.tokens_index, ldata.token_length, &amt_pobjs);
 
     free(ldata.lexp);
     
-    int i;
     for (i = 0; i < amt_pobjs; i++) {
         this_pobj = &(pobjs[i]);
         printf("pobj: %d, %d\n", this_pobj->type, this_pobj->value);

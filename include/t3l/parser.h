@@ -30,6 +30,6 @@ typedef struct {
     int tloc;
 } parser_obj_t;
 
-parser_obj_t *parse(char **tokens, unsigned tokens_amt, unsigned token_size, int *pobj_amt);
+parser_obj_t *parse(char **tokens, unsigned tokens_index, unsigned token_size, int *pobj_amt);
 
 #endif
