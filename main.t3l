@@ -1,15 +1,19 @@
 $macro REALMODE 1
 $flag REALMODE
 
-_start()
+$macro VOID 0
+$macro FUNC 1
+$macro BYTE 2
+$macro WORD 3
 
-$include @foot@
+boot(BYTE) {
+    //pget(fut)
+    //rem(fut)
+    //halt()
+}
 
-_start():
-    _mov _Al, 'A'
-    write_char()
+decl(fut, BYTE)
+set(fut, 5)
+stor(fut)
 
-_fill 510
-
-_byte 055h
-_byte 0AAh
+boot(fut)

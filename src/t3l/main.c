@@ -2,7 +2,11 @@
 #include <t3l/error.h>
 #include <t3l/parser.h>
 #include <t3l/preproc.h>
+
 #include <t3l/compiler.h>
+
+#include <compiler/compiler.h>
+#include <compiler/io.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,7 +40,7 @@ int main() {
     
     int i;
     for (i = 0; i < ldata.tokens_index; i++) {
-        printf("tk: %s\n", ldata.lexp[i]);
+        printf("tk #%d: %s\n", i, ldata.lexp[i]);
     }
 
     int amt_pobjs;
@@ -44,14 +48,31 @@ int main() {
     parser_obj_t *pobjs = parse(ldata.lexp, ldata.tokens_index, ldata.token_length, &amt_pobjs);
 
     free(ldata.lexp);
+
+    const char *pobj_types[] = {"Null", "Number", "Decl", "Register", "Label", "Call", "StartBlock", "EndBlock", "StartParan", "EndParan", "Parameter"};
     
     for (i = 0; i < amt_pobjs; i++) {
         this_pobj = &(pobjs[i]);
-        printf("pobj: %d, %d\n", this_pobj->type, this_pobj->value);
+        printf("pobj: %s, %d\n", pobj_types[this_pobj->type], this_pobj->value);
+        if (this_pobj->label != NULL) {
+            printf("\tlabel: %s\n", this_pobj->label);
+        }
     }
 
-    compiler_init(out_fp);
     compile(pobjs, amt_pobjs);
+
+    unsigned long len = 0;
+    unsigned char *compiler_buf = compiler_get_buffer(&len);
+
+    printf("Binary Dump:\n\n");
+
+    unsigned long index = 0;
+    for (index = 0; index < len; index++) {
+        printf("%02X ", compiler_buf[index]);
+    }
+    printf("\n");
+    // compiler_init(out_fp);
+    // compile(pobjs, amt_pobjs);
 
 end:;
     int error_count = t3l_get_error_count();

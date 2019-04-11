@@ -6,8 +6,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#define MOV_V8_REG  0
-#define MOV_V16_REG 1
+// #define MOV_V8_REG  0
+// #define MOV_V16_REG 1
 // #define MOV_REG_REG 1
 // #define MOV_MEM_REG 2
 // #define MOV_REG_MEM 3

@@ -1,6 +1,8 @@
 #ifndef LEXER_H
 #define LEXER_H
 
+#define TOKEN_END 0x03
+
 typedef struct {
     char **lexp;
     unsigned tokens_index;

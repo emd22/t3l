@@ -2,10 +2,9 @@
 .code16
 .globl _start
 
-test1:
-    cli
-    hlt 
+boot:
 
 _start:
-    mov $0x10, %al
-    jmp test1
+    mov $5, %al  # set
+    push %ax     # stor
+    call boot

@@ -87,58 +87,6 @@ void preproc(char **tokens, unsigned *tok_amt, unsigned tok_size) {
                 printf("Compiler flag %s activated.\n", tokens[i+2]);
                 compiler_flags |= atoi(tokens[i+2]);
             }
-            else if (!strcmp(tokens[i+1], "include")) {
-                char *path = tokens[i+2];
-                if (done)
-                    continue;
-                printf("including file '%s'\n", path);
-                FILE *included_fp = fopen(path, "rb");
-                if (!included_fp) {
-                    t3l_error("Cannot include file '%s' (File does not exist)\n", path);
-                    continue;
-                }
-                fseek(included_fp, 0, SEEK_END);
-                unsigned long fsize = ftell(included_fp);
-                rewind(included_fp);
-
-                char *fdata = malloc(fsize);
-                fread(fdata, 1, fsize, included_fp);
-
-                lexer_data_t old_l_data = get_lexer_data();
-
-                lexer_data_t lexd = lex(fdata, fsize);
-
-                int k;
-                for (k = 0; k < lexd.tokens_index; k++) {
-                    printf("LXtk: %s\n", lexd.lexp[k]);
-                }
-                tokens = realloc(tokens, ((*tok_amt)*tok_size)+(lexd.tokens_index*lexd.token_length));
-                for (k = 0; k < lexd.tokens_index; k++) {
-                    printf("mallocd @ %d\n", (*tok_amt)+k);
-                    tokens[k+(*tok_amt)] = malloc(lexd.token_length);
-                }
-
-
-                // unsigned c;
-                // for (c = (*tok_amt) - 1; c > i; c--) {
-                //     printf("tk[%d] = %s\n", c, tokens[c]);
-                //     memcpy(tokens[c+lexd.tokens_index], tokens[c], tok_size);
-                // }
-                
-                for (k = 0; k < (*tok_amt)-i; k++) {
-                    memcpy(tokens[i+k+lexd.tokens_index], tokens[i+k], lexd.token_length);
-                }
-
-                // return;
-                memcpy(tokens[lexd.tokens_index], lexd.lexp, lexd.tokens_index*lexd.token_length);
-                (*tok_amt) += lexd.tokens_index;
-
-                free(fdata);
-                done = true;
-
-                set_lexer_data(&old_l_data);
-                // fclose(included_fp);
-            }
         }
     }
 }

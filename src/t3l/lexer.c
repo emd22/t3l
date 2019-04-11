@@ -145,6 +145,8 @@ lexer_data_t lex(char *data, long fsize) {
         this_tok[this_tok_i++] = data[i];
     }
 
+    // lexp[tokens_index++][0] = 0x03;
+
     lexer_data_t lex_data;
     lex_data.lexp = lexp;
     lex_data.tokens_index = tokens_index;
